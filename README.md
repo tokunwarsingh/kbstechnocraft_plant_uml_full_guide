@@ -57,7 +57,7 @@ else failure
 end
 deactivate Auth
 @enduml
-
+```
 # 📊 PlantUML Syntax & Commands Reference
 
 | Category | Command / Syntax | Visual Result / Purpose |
