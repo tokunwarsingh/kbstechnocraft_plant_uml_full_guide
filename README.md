@@ -1,3 +1,63 @@
+# 🛠️ PlantUML Mastery: The Complete Guide
+
+This document provides a comprehensive overview of PlantUML, from basic syntax to professional architecture patterns.
+
+---
+
+## 📖 1. Quick Reference Tables
+
+### Core Syntax Cheat Sheet
+| Feature | Syntax | Diagram Type |
+| :--- | :--- | :--- |
+| **Participants** | `actor`, `participant`, `database` | Sequence |
+| **Flow Control** | `if`, `else`, `endif` | Activity |
+| **Loops** | `while`, `endwhile` | Activity / Sequence |
+| **State Transitions**| `[*] --> State1` | State |
+| **Visibility** | `+` (public), `-` (private) | Class |
+| **Styling** | `!theme <name>` | All |
+
+### Relationship Symbols
+| Symbol | Meaning | Use Case |
+| :--- | :--- | :--- |
+| `->` | Synchronous Request | Sequence |
+| `-->` | Asynchronous/Response | Sequence |
+| `<|--` | Inheritance (Is-a) | Class |
+| `*--` | Composition (Must have) | Class |
+| `o--` | Aggregation (Can have) | Class |
+
+---
+
+## 🚀 2. Practical Code Examples
+
+### A. Sequence Diagram (User Authentication)
+The most common diagram for documenting APIs and Auth flows.
+
+```puml
+@startuml
+autonumber
+skinparam style strictuml
+
+actor User
+participant "Browser" as Client
+participant "Auth Service" as Auth
+database "UserDB" as DB
+
+User -> Client : Submit login form
+Client -> Auth : POST /v1/login
+activate Auth
+Auth -> DB : Fetch user record
+DB --> Auth : User Data (Hashed Pass)
+Auth -> Auth : Verify Password
+alt success
+    Auth --> Client : 200 OK (JWT Token)
+    Client -> User : Redirect to Dashboard
+else failure
+    Auth --> Client : 401 Unauthorized
+    Client -> User : Show "Invalid Credentials"
+end
+deactivate Auth
+@enduml
+
 # 📊 PlantUML Syntax & Commands Reference
 
 | Category | Command / Syntax | Visual Result / Purpose |
