@@ -1,0 +1,6 @@
+@startuml
+ditaa
++----+
+|App |
++----+
+@enduml

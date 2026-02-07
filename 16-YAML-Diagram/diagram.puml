@@ -1,0 +1,4 @@
+@startuml
+yaml
+key: value
+@enduml
