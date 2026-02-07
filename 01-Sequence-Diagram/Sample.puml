@@ -1,0 +1,23 @@
+@startuml
+autonumber
+title User Login Flow
+
+actor User
+participant "Frontend" as UI
+participant "Auth API" as API
+database "UserDB" as DB
+
+User -> UI : Enter Email/Pass
+UI -> API : POST /login
+API -> DB : Find User
+DB --> API : User Data
+API -> API : Validate Password
+
+alt success
+    API --> UI : 200 OK (Token)
+    UI -> User : Redirect to Home
+else failure
+    API --> UI : 401 Unauthorized
+    UI -> User : Show Error Message
+end
+@enduml

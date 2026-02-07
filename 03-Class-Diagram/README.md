@@ -5,3 +5,9 @@ This folder corresponds to the **03 Class Diagram** chapter from the PlantUML gu
 It contains:
 - diagram.puml: Example PlantUML syntax
 - README.md: Explanation of the diagram type
+
+Used for data modeling and software structure.
+|Relation |Code |Meaning|
+|Extension |<--| |
+|Composition|*--|Part of (Strong)|
+|Aggregationo|-- |Part of (Weak)|
