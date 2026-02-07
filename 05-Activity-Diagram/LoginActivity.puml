@@ -1,0 +1,10 @@
+@startuml
+start
+:User clicks login;
+if (Valid?) then (yes)
+  :Show dashboard;
+else (no)
+  :Show error;
+endif
+stop
+@enduml

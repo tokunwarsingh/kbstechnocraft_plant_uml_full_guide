@@ -1,0 +1,15 @@
+@startuml loginFlow
+User -> UI: Enter credentials
+UI -> AuthService: Login request
+AuthService -> Database: Validate user
+Database --> AuthService: User data
+AuthService --> UI: Token
+alt Valid User
+  AuthService --> UI: Success
+else Invalid User
+  AuthService --> UI: Error
+end
+
+UI --> User: Login  successful
+
+@enduml

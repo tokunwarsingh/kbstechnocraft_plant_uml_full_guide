@@ -1,0 +1,14 @@
+@startuml
+class User {
+  +Id: int
+  +Name: string
+  +Login()
+}
+
+class Order {
+  +OrderId: int
+  +Amount: double
+}
+
+User "1" --> "many" Order
+@enduml
