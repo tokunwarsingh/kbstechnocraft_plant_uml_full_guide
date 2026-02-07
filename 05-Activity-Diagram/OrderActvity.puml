@@ -1,0 +1,16 @@
+@startuml
+start
+:Receive Order;
+if (Item in stock?) then (yes)
+  :Process Payment;
+  if (Payment Successful?) then (yes)
+    :Ship Item;
+  else (no)
+    :Notify User;
+    stop
+  endif
+else (no)
+  :Order from Supplier;
+endif
+stop
+@enduml
