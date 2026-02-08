@@ -1,6 +1,5 @@
-@startuml
-ditaa
+@startditaa
 +----+
 |App |
 +----+
-@enduml
+@endditaa

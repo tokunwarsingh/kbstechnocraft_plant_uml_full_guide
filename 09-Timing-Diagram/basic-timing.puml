@@ -1,3 +1,31 @@
-@startuml
-timing diagram
+@startuml BasicTimingDiagram
+' title Basic Timing Diagram
+
+robust "Client" as C
+robust "Server" as S
+
+@0
+C is Idle
+S is Idle
+
+@10
+C is Active : User action
+C -> S : Request
+
+@30
+S is Active : Processing
+S -> S : DB write
+
+@60
+S is Idle
+S -> C : Response
+
+@70
+C is Idle : Done
+
+@80
+note right of C
+	Simple timing diagram example
+end note
+
 @enduml

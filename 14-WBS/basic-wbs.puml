@@ -1,4 +1,7 @@
-@startuml
-wbs
+@startwbs
+title Basic WBS
+
 * Project
-@enduml
+** Task 1
+
+@endwbs

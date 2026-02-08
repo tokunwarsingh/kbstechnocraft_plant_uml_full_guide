@@ -1,4 +1,6 @@
 @startuml
-yaml
-key: value
+title Basic YAML (display)
+note "key: value" as YAML
+end note
+
 @enduml

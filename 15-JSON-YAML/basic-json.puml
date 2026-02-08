@@ -1,3 +1,6 @@
 @startuml
-json "Data" { "id": 1 }
+title Basic JSON (display)
+note "{\n  \"id\": 1\n}" as JSON
+end note
+
 @enduml

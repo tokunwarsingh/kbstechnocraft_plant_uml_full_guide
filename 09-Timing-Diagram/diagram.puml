@@ -1,3 +1,28 @@
 @startuml
-timing diagram
+title Timing Diagram - Example
+
+concise "Sensor" as Sensor
+concise "Controller" as Controller
+
+@0
+Sensor is Idle
+Controller is Idle
+
+@20
+Sensor is Active : Detects event
+Sensor -> Controller : Signal
+
+@40
+Controller is Active : Handle event
+Controller -> Controller : Update state
+
+@80
+Controller is Idle
+Sensor is Idle
+
+@90
+note right of Controller
+	Example timing flow
+end note
+
 @enduml

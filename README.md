@@ -97,3 +97,7 @@ If your diagram is too long, use the `newpage` command to split it into separate
 newpage
 :Step 2 (On a new image);
 @enduml
+```
+# generate PNG from file (requires plantuml.jar and Java)
+java -jar path\to\plantuml.jar 09-Timing-Diagram\basic-timing.puml
+java -jar path\to\plantuml.jar 09-Timing-Diagram\diagram.puml

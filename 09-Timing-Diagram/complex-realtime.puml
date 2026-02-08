@@ -42,7 +42,7 @@ auth -> auth : Cache HIT
 
 @130
 auth is Idle
-auth -> gateway : ✓ Token valid
+auth -> gateway : Token valid
 
 @140
 gateway is Active : Decompose request
@@ -58,7 +58,7 @@ inventory is Active : Lock inventory
 
 @155
 inventory is Idle
-inventory -> orders : ✓ Stock available
+inventory -> orders : Stock available
 
 @160
 orders -> payment : Initiate payment
@@ -73,7 +73,7 @@ payment is Active : Wait for gateway
 
 @180
 payment is Idle
-payment -> orders : ✓ Payment successful
+payment -> orders : Payment successful
 
 @185
 orders is Idle
@@ -139,7 +139,7 @@ note right of payment
 end note
 
 note bottom
-    ⏱️ P99 latency: 250ms
-    📊 Throughput: 1000 req/sec
-    ✓ All services healthy
+    P99 latency: 250ms
+    Throughput: 1000 req/sec
+    All services healthy
 end note

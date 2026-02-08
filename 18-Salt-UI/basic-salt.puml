@@ -1,6 +1,7 @@
-@startuml
-salt
+@startsalt
+title Basic Salt UI
 {
-Button
+	Button
 }
-@enduml
+
+@endsalt

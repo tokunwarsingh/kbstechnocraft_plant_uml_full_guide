@@ -1,11 +1,13 @@
-@startyaml
+@startuml
+title Complex YAML Configuration (display)
+note
 ---
 # Real-Time E-Commerce Order Processing Configuration
 application:
   name: "E-Commerce Platform"
   version: "2.0.0"
   environment: "production"
-  
+
 services:
   api_gateway:
     enabled: true
@@ -15,7 +17,7 @@ services:
     rate_limit:
       requests_per_second: 1000
       burst: 2000
-    
+
   auth_service:
     enabled: true
     replicas: 2
@@ -24,7 +26,7 @@ services:
       algorithm: "HS256"
       expiry_hours: 24
       refresh_token_expiry_days: 7
-    
+
   order_service:
     enabled: true
     replicas: 5
@@ -39,7 +41,7 @@ services:
       type: "redis"
       host: "redis-cluster.internal"
       ttl_minutes: 60
-    
+
   payment_service:
     enabled: true
     replicas: 3
@@ -52,14 +54,14 @@ services:
       - name: "paypal"
         timeout_ms: 20000
         retries: 2
-    
+
   inventory_service:
     enabled: true
     replicas: 2
     port: 8084
     stock_check_interval_ms: 1000
     lock_timeout_seconds: 30
-    
+
   notification_service:
     enabled: true
     replicas: 2
@@ -74,7 +76,7 @@ services:
         rate_limit: 100_per_minute
       - type: "push_notification"
         provider: "firebase"
-        
+
   search_service:
     enabled: true
     replicas: 3
@@ -96,7 +98,7 @@ data_stores:
       enabled: true
       schedule: "0 2 * * *"
       retention_days: 30
-    
+
   cache_layer:
     type: "redis"
     mode: "cluster"
@@ -107,7 +109,7 @@ data_stores:
     persistence:
       aof_enabled: true
       fsync: "everysec"
-    
+
   search_index:
     type: "elasticsearch"
     cluster_name: "elasticsearch-prod-v7"
@@ -116,7 +118,7 @@ data_stores:
       number_of_shards: 5
       number_of_replicas: 2
       refresh_interval: "1s"
-    
+
   timeseries_db:
     type: "prometheus"
     retention_period_days: 90
@@ -128,7 +130,7 @@ monitoring:
   metrics_collection:
     interval_seconds: 15
     retention_days: 90
-    
+
   alerting:
     enabled: true
     alert_manager: "prometheus"
@@ -142,12 +144,12 @@ monitoring:
       - name: "service_down"
         condition: "service_health == down"
         severity: "critical"
-    
+
   logging:
     type: "elk_stack"
     log_level: "info"
     retention_days: 30
-    
+
   tracing:
     enabled: true
     provider: "jaeger"
@@ -157,7 +159,7 @@ deployment:
   platform: "kubernetes"
   cluster: "eks-prod-us-east"
   namespace: "production"
-  
+
   infrastructure:
     load_balancer: "nlb"
     auto_scaling:
@@ -165,14 +167,14 @@ deployment:
       min_replicas: 2
       max_replicas: 20
       target_cpu_percent: 70
-    
+
   network:
     vpc_cidr: "10.0.0.0/16"
     availability_zones: 3
     nat_gateway:
       enabled: true
       per_az: true
-    
+
   security:
     tls_enabled: true
       certificate_provider: "acm"
@@ -185,7 +187,7 @@ deployment:
 configuration_management:
   type: "consul"
   sync_interval_seconds: 30
-  
+
 feature_flags:
   new_checkout_flow: 
     enabled: true
@@ -198,3 +200,6 @@ feature_flags:
     rollout_percentage: 0
 
 ...
+end note
+
+@enduml

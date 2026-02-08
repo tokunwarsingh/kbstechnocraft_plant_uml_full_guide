@@ -1,3 +1,5 @@
 @startuml
-BusinessActor(User)
+archimate
+title Basic ArchiMate Diagram
+BusinessActor(user) as "User"
 @enduml

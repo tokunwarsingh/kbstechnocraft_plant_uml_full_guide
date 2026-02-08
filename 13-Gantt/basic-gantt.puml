@@ -1,4 +1,6 @@
-@startuml
-gantt
+@startgantt
+title Basic Gantt
+
 [Task] lasts 5 days
-@enduml
+
+@endgantt

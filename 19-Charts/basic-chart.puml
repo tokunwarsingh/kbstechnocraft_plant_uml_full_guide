@@ -1,3 +1,8 @@
 @startuml
-bar chart
+title Basic Chart (simple)
+skinparam shadowing false
+rectangle "A: 10" as A
+rectangle "B: 7" as B
+A -[hidden]-> B
+
 @enduml

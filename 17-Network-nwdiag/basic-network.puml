@@ -1,3 +1,6 @@
-@startuml
-nwdiag { }
-@enduml
+@startnwdiag
+network {
+	router1 [Router]
+}
+
+@endnwdiag

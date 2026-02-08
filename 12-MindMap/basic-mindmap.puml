@@ -1,5 +1,7 @@
-@startuml
-mindmap
+@startmindmap
+title Basic Mind Map
+
 * Root
 ** Child
-@enduml
+
+@endmindmap
