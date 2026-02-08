@@ -1,0 +1,288 @@
+@startuml Complex_ERDiagram
+skinparam backgroundColor #f5f5f5
+title Enterprise E-Commerce Database Schema - ER Diagram
+
+entity "users" as users {
+    *user_id : UUID <<PK>>
+    --
+    email : String <<UNIQUE>>
+    password_hash : String
+    first_name : String
+    last_name : String
+    phone : String
+    created_at : DateTime
+    updated_at : DateTime
+    is_active : Boolean
+    user_type : ENUM
+}
+
+entity "customer_profiles" as cust_profile {
+    *profile_id : UUID <<PK>>
+    user_id : UUID <<FK>>
+    --
+    loyalty_points : Integer
+    tier_level : ENUM
+    total_spent : Decimal
+    preferred_currency : String
+    notifications_enabled : Boolean
+    last_login : DateTime
+}
+
+entity "addresses" as addresses {
+    *address_id : UUID <<PK>>
+    user_id : UUID <<FK>>
+    --
+    street_1 : String
+    street_2 : String
+    city : String
+    state : String
+    postal_code : String
+    country : String
+    is_default : Boolean
+    address_type : ENUM
+}
+
+entity "payment_methods" as payment_methods {
+    *payment_method_id : UUID <<PK>>
+    user_id : UUID <<FK>>
+    --
+    payment_type : ENUM
+    last_four_digits : String
+    is_default : Boolean
+    token : String <<ENCRYPTED>>
+    expires_at : DateTime
+    created_at : DateTime
+}
+
+entity "categories" as categories {
+    *category_id : UUID <<PK>>
+    parent_category_id : UUID <<FK>>
+    --
+    name : String
+    slug : String <<UNIQUE>>
+    description : String
+    image_url : String
+    is_active : Boolean
+}
+
+entity "products" as products {
+    *product_id : UUID <<PK>>
+    category_id : UUID <<FK>>
+    --
+    name : String
+    sku : String <<UNIQUE>>
+    description : String
+    base_price : Decimal
+    cost_price : Decimal
+    is_active : Boolean
+    created_at : DateTime
+    updated_at : DateTime
+}
+
+entity "product_variations" as variations {
+    *variation_id : UUID <<PK>>
+    product_id : UUID <<FK>>
+    --
+    sku : String <<UNIQUE>>
+    attributes : JSON
+    price_modifier : Decimal
+    quantity_available : Integer
+}
+
+entity "product_images" as product_images {
+    *image_id : UUID <<PK>>
+    product_id : UUID <<FK>>
+    --
+    image_url : String
+    alt_text : String
+    display_order : Integer
+}
+
+entity "product_reviews" as reviews {
+    *review_id : UUID <<PK>>
+    product_id : UUID <<FK>>
+    user_id : UUID <<FK>>
+    --
+    rating : Integer (1-5)
+    title : String
+    content : String
+    helpful_count : Integer
+    unhelpful_count : Integer
+    created_at : DateTime
+}
+
+entity "orders" as orders {
+    *order_id : UUID <<PK>>
+    user_id : UUID <<FK>>
+    billing_address_id : UUID <<FK>>
+    shipping_address_id : UUID <<FK>>
+    payment_method_id : UUID <<FK>>
+    --
+    order_number : String <<UNIQUE>>
+    order_date : DateTime
+    status : ENUM
+    total_amount : Decimal
+    subtotal : Decimal
+    tax_amount : Decimal
+    discount_amount : Decimal
+    shipping_cost : Decimal
+}
+
+entity "order_items" as order_items {
+    *order_item_id : UUID <<PK>>
+    order_id : UUID <<FK>>
+    product_id : UUID <<FK>>
+    variation_id : UUID <<FK>>
+    --
+    quantity : Integer
+    unit_price : Decimal
+    discount_applied : Decimal
+    line_total : Decimal
+}
+
+entity "shipments" as shipments {
+    *shipment_id : UUID <<PK>>
+    order_id : UUID <<FK>>
+    --
+    tracking_number : String <<UNIQUE>>
+    carrier : ENUM
+    shipped_date : DateTime
+    estimated_delivery : DateTime
+    actual_delivery : DateTime
+    status : ENUM
+}
+
+entity "shipment_tracking" as tracking {
+    *tracking_id : UUID <<PK>>
+    shipment_id : UUID <<FK>>
+    --
+    event_timestamp : DateTime
+    status : String
+    location : String
+    message : String
+}
+
+entity "transactions" as transactions {
+    *transaction_id : UUID <<PK>>
+    order_id : UUID <<FK>>
+    payment_method_id : UUID <<FK>>
+    --
+    amount : Decimal
+    status : ENUM
+    gateway : String
+    gateway_transaction_id : String <<UNIQUE>>
+    created_at : DateTime
+    completed_at : DateTime
+}
+
+entity "returns" as returns {
+    *return_id : UUID <<PK>>
+    order_id : UUID <<FK>>
+    --
+    return_status : ENUM
+    reason : String
+    initiated_date : DateTime
+    completed_date : DateTime
+    refund_amount : Decimal
+}
+
+entity "return_items" as return_items {
+    *return_item_id : UUID <<PK>>
+    return_id : UUID <<FK>>
+    order_item_id : UUID <<FK>>
+    --
+    quantity_returned : Integer
+    condition : ENUM
+    notes : String
+}
+
+entity "inventory" as inventory {
+    *inventory_id : UUID <<PK>>
+    product_id : UUID <<FK>>
+    --
+    warehouse_location : String
+    quantity_on_hand : Integer
+    quantity_reserved : Integer
+    quantity_available : Integer
+    reorder_level : Integer
+    last_counted_at : DateTime
+}
+
+entity "discounts" as discounts {
+    *discount_id : UUID <<PK>>
+    --
+    code : String <<UNIQUE>>
+    discount_type : ENUM
+    discount_value : Decimal
+    max_uses : Integer
+    current_uses : Integer
+    start_date : DateTime
+    end_date : DateTime
+    is_active : Boolean
+}
+
+entity "audit_logs" as audit_logs {
+    *log_id : UUID <<PK>>
+    user_id : UUID <<FK>>
+    --
+    entity_type : String
+    entity_id : UUID
+    action : String
+    old_value : JSON
+    new_value : JSON
+    timestamp : DateTime
+    ip_address : String
+}
+
+' Relationships
+users ||--o| cust_profile : has
+users ||--o{ addresses : has
+users ||--o{ payment_methods : has
+users ||--o{ orders : places
+users ||--o{ reviews : writes
+
+categories ||--o{ categories : parent_of
+categories ||--o{ products : contains
+
+products ||--o{ variations : has_variations
+products ||--o{ product_images : has_images
+products ||--o{ reviews : receives
+
+orders ||--o{ order_items : contains
+orders ||--o{ shipments : generates
+orders ||--o{ transactions : paid_by
+orders ||--o{ returns : has_returns
+
+order_items }o--|| products : includes
+order_items }o--|| variations : uses
+
+shipments ||--o{ tracking : generates
+
+returns ||--o{ return_items : contains
+return_items }o--|| order_items : references
+
+transactions }o--|| payment_methods : uses
+
+inventory }o--|| products : tracks
+
+addresses }o--|| users : belongs_to
+payment_methods }o--|| users : belongs_to
+
+audit_logs }o--|| users : by
+
+note right of orders
+    Core order aggregate
+    Immutable once shipped
+end note
+
+note bottom of products
+    Primary catalog entity
+    Variations support multiple options
+end note
+
+note bottom
+    ✓ Normalized to 3NF
+    🔒 ACID compliance
+    📊 Historical audit trail
+    🚀 Supports high throughput
+end note

@@ -1,0 +1,98 @@
+@startuml Complex_OrderStateMachine
+skinparam backgroundColor #f5f5f5
+title E-Commerce Order Processing - Complex State Machine
+
+[*] --> Created
+
+Created --> PendingPayment : User proceeds\nto checkout
+Created --> Cancelled : User abandons\ncart
+
+PendingPayment --> PaymentProcessing : initiate_payment()
+PendingPayment --> Cancelled : cancel_order()
+
+PaymentProcessing --> PaymentFailed : payment_declined()
+PaymentProcessing --> PaymentProcessing : retry_payment()
+PaymentProcessing --> InventoryReservation : payment_successful()
+
+PaymentFailed --> PendingPayment : customer_retries()
+PaymentFailed --> Cancelled : max_retries_exceeded\nor customer_cancels()
+
+InventoryReservation --> ReservationFailed : insufficient_stock()
+InventoryReservation --> Confirmed : inventory_reserved()
+
+ReservationFailed --> PendingPayment : customer_tries_qty\n_reduction()
+ReservationFailed --> Cancelled : customer_cancels()
+
+Confirmed --> Processing : order_confirmed()
+Confirmed --> Cancelled : customer_requests\ncancel() [within\n24 hours]
+
+Processing --> Picking : warehouse_staff\nbegins_picking()
+Processing --> ProcessingFailed : auto_allocation\nfailed()
+
+ProcessingFailed --> Processing : manual_override()
+ProcessingFailed --> Cancelled : cannot_fulfill()
+
+Picking --> QC_Check : items_picked\nfrom_shelves()
+
+QC_Check --> Packing : quality_passed()
+QC_Check --> Picking : defect_found\nitems_replaced()
+
+Packing --> ReadyToShip : items_packed()
+ReadyToShip --> Shipped : carrier_pickup()
+
+Shipped --> InTransit : shipment_on\nthe_way()
+
+InTransit --> OutForDelivery : local_facility\nscan()
+InTransit --> DeliveryFailed : delivery_issue()
+
+OutForDelivery --> Delivered : delivery_confirmed\nsignature_obtained()
+OutForDelivery --> DeliveryFailed : delivery_attempt_failed()
+
+DeliveryFailed --> OutForDelivery : retry_delivery()
+DeliveryFailed --> ReturnInitiated : max_attempts\nexceeded()
+
+Delivered --> Completed : order_fulfilled\nwithin_sla()
+Delivered --> ReturnInitiated : customer_initiates\nreturn()
+
+Completed --> [*]
+
+Cancelled --> [*]
+
+ReturnInitiated --> ReturnShipped : return_label_used()
+ReturnShipped --> ReturnReceived : returned_to_warehouse()
+ReturnReceived --> ReturnQC : inspection_started()
+
+ReturnQC --> ReturnAccepted : item_condition\nacceptable()
+ReturnQC --> ReturnRejected : item_damaged\nor_not_eligible()
+
+ReturnAccepted --> RefundProcessing : process_refund()
+ReturnRejected --> [*]
+
+RefundProcessing --> RefundCompleted : refund_issued\nto_payment_method()
+RefundCompleted --> [*]
+
+note right of Confirmed
+    Customer can still cancel
+    within 24 hours
+end note
+
+note right of Shipped
+    Order under carrier's
+    responsibility
+end note
+
+note right of Delivered
+    Main fulfillment
+    goal achieved
+end note
+
+note right of PaymentProcessing
+    May retry up to 3 times
+    with exponential backoff
+end note
+
+note bottom
+    🔄 Fully automated workflow
+    📧 Notifications sent at each stage
+    ♻️ Return handling integrated
+end note

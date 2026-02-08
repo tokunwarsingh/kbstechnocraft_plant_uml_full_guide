@@ -1,0 +1,83 @@
+@startuml Complex_Enterprise_Archimate
+skinparam backgroundColor #f5f5f5
+title Enterprise Digital Transformation - Archimate Model
+
+archimate #Application "Web Application"
+archimate #Application "Mobile App"
+archimate #Application "Admin Portal"
+archimate #Application "Analytics Engine"
+
+archimate #Technology "Kubernetes\nCluster"
+archimate #Technology "API Gateway\n(Kong)"
+archimate #Technology "Service Mesh\n(Istio)"
+archimate #Technology "Message Queue\n(Kafka)"
+archimate #Technology "PostgreSQL\nDatabase"
+archimate #Technology "ElasticSearch\nCluster"
+archimate #Technology "Redis Cache"
+archimate #Technology "CDN Network"
+
+archimate #Device "Customer\nDevices"
+archimate #Device "Mobile\nDevices"
+archimate #Device "Admin\nWorkstations"
+
+archimate #BusinessActor "End Users"
+archimate #BusinessActor "Business\nAnalysts"
+archimate #BusinessActor "System\nAdministrators"
+
+archimate #BusinessFunction "Order\nManagement"
+archimate #BusinessFunction "Payment\nProcessing"
+archimate #BusinessFunction "Inventory\nTracking"
+archimate #BusinessFunction "Customer\nSupport"
+archimate #BusinessFunction "Analytics &\nReporting"
+
+archimate #BusinessProcess "Checkout\nFlow"
+archimate #BusinessProcess "Order\nFulfillment"
+archimate #BusinessProcess "Return\nProcessing"
+archimate #BusinessProcess "User\nAuthentication"
+
+archimate #BusinessService "Order\nService"
+archimate #BusinessService "Payment\nService"
+archimate #BusinessService "Customer\nService"
+archimate #BusinessService "Inventory\nService"
+
+archimate #ApplicationService "Authentication\nAPI"
+archimate #ApplicationService "Order API"
+archimate #ApplicationService "Payment API"
+archimate #ApplicationService "Inventory API"
+archimate #ApplicationService "Search API"
+archimate #ApplicationService "Analytics\nAPI"
+
+archimate #ApplicationComponent "User\nModule"
+archimate #ApplicationComponent "Order\nModule"
+archimate #ApplicationComponent "Payment\nModule"
+archimate #ApplicationComponent "Inventory\nModule"
+archimate #ApplicationComponent "Notification\nModule"
+archimate #ApplicationComponent "Search\nModule"
+
+archimate #TechnologyService "Compute\nService"
+archimate #TechnologyService "Storage\nService"
+archimate #TechnologyService "Messaging\nService"
+archimate #TechnologyService "Caching\nService"
+archimate #TechnologyService "Search\nService"
+
+archimate #TechnologyComponent "Container\nRuntime"
+archimate #TechnologyComponent "Database\nEngine"
+archimate #TechnologyComponent "Cache\nEngine"
+archimate #TechnologyComponent "Message\nBroker"
+archimate #TechnologyComponent "Search\nEngine"
+
+archimate #Artifact "Mobile App\nBuild"
+archimate #Artifact "Web App\nBuild"
+archimate #Artifact "API\nDocumentation"
+archimate #Artifact "System\nLogs"
+
+archimate #Location "Data Center\nUS-East"
+archimate #Location "Data Center\nEU-West"
+archimate #Location "CDN Nodes\nGlobal"
+
+note bottom
+    🏗️ Full enterprise architecture
+    📊 From business to technology layer
+    🔄 Service-oriented design
+    ✓ Cloud-native implementation
+end note

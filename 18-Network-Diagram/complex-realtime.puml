@@ -1,0 +1,156 @@
+@startuml Complex_NetworkDiagram
+skinparam backgroundColor #f5f5f5
+title Multi-Region Global Network Architecture
+
+cloud "CDN Global" as cdn_global
+
+rectangle "North America\nRegion {USA-East}" as na_region {
+    cloud "CloudFront" as cf_na
+    rectangle "VPC-NA\n(10.0.0.0/16)" as vpc_na {
+        rectangle "AZ-1 {Avail Zone}" as az_na_1 {
+            card "ALB" as alb_na_1
+            card "API Gateway" as apigw_na_1
+            card "App Servers(3)" as app_na_1
+        }
+        rectangle "AZ-2 {Avail Zone}" as az_na_2 {
+            card "ALB" as alb_na_2
+            card "API Gateway" as apigw_na_2
+            card "App Servers(3)" as app_na_2
+        }
+        rectangle "Data Tier" as dt_na {
+            database "RDS Primary" as rds_na_primary
+            database "ElastiCache" as cache_na
+            database "ES Cluster" as es_na
+        }
+    }
+    card "NAT Gateway" as nat_na
+}
+
+rectangle "Europe\nRegion {EU-West}" as eu_region {
+    cloud "CloudFront" as cf_eu
+    rectangle "VPC-EU\n(10.1.0.0/16)" as vpc_eu {
+        rectangle "AZ-1 {Avail Zone}" as az_eu_1 {
+            card "ALB" as alb_eu_1
+            card "API Gateway" as apigw_eu_1
+            card "App Servers(2)" as app_eu_1
+        }
+        rectangle "Data Tier" as dt_eu {
+            database "RDS Replica" as rds_eu_replica
+            database "ElastiCache" as cache_eu
+        }
+    }
+    card "NAT Gateway" as nat_eu
+}
+
+rectangle "Asia Pacific\nRegion {SG}" as ap_region {
+    cloud "CloudFront" as cf_ap
+    rectangle "VPC-AP\n(10.2.0.0/16)" as vpc_ap {
+        rectangle "AZ-1 {Availability Zone}" as az_ap_1 {
+            card "ALB" as alb_ap_1
+            card "App Servers(2)" as app_ap_1
+        }
+        rectangle "Data Tier" as dt_ap {
+            database "ElastiCache Replica" as cache_ap
+        }
+    }
+    card "NAT Gateway" as nat_ap
+}
+
+rectangle "Backup/DR\nRegion {US-West}" as dr_region {
+    database "RDS Standby" as rds_dr
+    database "S3 Backups" as s3_dr
+}
+
+rectangle "On-Premises" as onprem {
+    card "Employee Devices" as emp_devices
+    card "Office Network" as office_net
+}
+
+' External Services
+rectangle "External Services" as ext_services {
+    card "Stripe API" as stripe
+    card "SendGrid" as sendgrid
+    card "DataDog" as datadog
+    card "GitHub" as github
+}
+
+' Cross-region connections
+cdn_global --> cf_na
+cdn_global --> cf_eu
+cdn_global --> cf_ap
+
+cf_na --> alb_na_1
+cf_na --> alb_na_2
+
+cf_eu --> alb_eu_1
+
+cf_ap --> alb_ap_1
+
+' Within NA region
+alb_na_1 --> apigw_na_1
+alb_na_1 --> app_na_1
+alb_na_2 --> apigw_na_2
+alb_na_2 --> app_na_2
+
+app_na_1 --> dt_na
+app_na_2 --> dt_na
+
+alb_na_1 -.-> nat_na
+alb_na_2 -.-> nat_na
+
+' Within EU region
+alb_eu_1 --> apigw_eu_1
+alb_eu_1 --> app_eu_1
+app_eu_1 --> dt_eu
+alb_eu_1 -.-> nat_eu
+
+' Within AP region
+alb_ap_1 --> app_ap_1
+app_ap_1 --> dt_ap
+alb_ap_1 -.-> nat_ap
+
+' Replication
+rds_na_primary --> rds_eu_replica
+rds_na_primary --> rds_dr
+
+cache_na -.-> cache_eu
+cache_na -.-> cache_ap
+
+' Inter-region connections
+vpc_na --> vpc_eu : "AWS Direct Connect"
+vpc_eu --> vpc_ap : "AWS Direct Connect"
+
+' External integrations
+nat_na --> stripe : "Outbound Internet"
+nat_na --> sendgrid
+nat_na --> datadog
+
+' On-premises connection
+nat_na <-- office_net : "VPN Connection"
+
+note right of cdn_global
+    Global CDN for
+    static content distribution
+end note
+
+note right of vpc_na
+    Primary region
+    Active-Active setup
+end note
+
+note right of vpc_eu
+    Secondary region
+    Real-time replica
+end note
+
+note right of rds_dr
+    Warm standby for DR
+    Automated failover ready
+end note
+
+note bottom
+    🌍 Multi-region redundancy
+    🔄 Real-time replication
+    ✓ 99.999% uptime SLA
+    🛡️ Isolated networks per region
+end note

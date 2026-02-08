@@ -1,0 +1,148 @@
+@startuml Complex_Microservices_Components
+skinparam backgroundColor #f5f5f5
+title Cloud-Native Microservices Architecture - Component Diagram
+
+package "Client Layer" {
+    component "Web App" as web
+    component "Mobile App\n(iOS/Android)" as mobile
+    component "Admin Portal" as admin
+}
+
+package "API & Gateway Layer" {
+    component "API Gateway\n(Kong)" as gateway
+    component "Rate Limiter" as limiter
+    component "Load Balancer" as lb
+    component "API Authentication" as auth
+}
+
+package "Business Logic" {
+    component "User Service" as user_svc
+    component "Product Service" as product_svc
+    component "Order Service" as order_svc
+    component "Payment Service" as payment_svc
+    component "Inventory Service" as inv_svc
+    component "Shipping Service" as ship_svc
+    component "Notification Service" as notify_svc
+    component "Analytics Service" as analytics_svc
+    component "Search Service" as search_svc
+    component "Recommendation Engine" as recommend_svc
+}
+
+package "Data Layer" {
+    component "User DB\n(PostgreSQL)" as user_db
+    component "Product DB\n(PostgreSQL)" as product_db
+    component "Order DB\n(PostgreSQL)" as order_db
+    component "Cache Store\n(Redis)" as cache
+    component "Search Index\n(Elasticsearch)" as search_idx
+    component "Data Warehouse\n(Snowflake)" as warehouse
+}
+
+package "Message Queue & Streaming" {
+    component "Event Bus\n(Kafka)" as kafka
+    component "Message Queue\n(RabbitMQ)" as rabbitmq
+    component "Stream Processor\n(Flink)" as flink
+}
+
+package "Infrastructure & DevOps" {
+    component "Service Mesh\n(Istio)" as istio
+    component "Container Orchestration\n(Kubernetes)" as k8s
+    component "Config Server" as config
+    component "Logging\n(ELK Stack)" as logging
+    component "Monitoring\n(Prometheus)" as monitoring
+    component "Tracing\n(Jaeger)" as tracing
+}
+
+package "External Services" {
+    component "Payment Gateway\n(Stripe)" as stripe
+    component "Email Service\n(SendGrid)" as sendgrid
+    component "SMS Service\n(Twilio)" as twilio
+    component "CDN\n(CloudFront)" as cdn
+    component "Cloud Storage\n(S3)" as s3
+}
+
+' Client connections
+web --> lb
+mobile --> lb
+admin --> lb
+
+' Gateway layer
+lb --> gateway
+gateway --> limiter
+gateway --> auth
+
+' Auth & Rate Limiting
+auth --> user_svc
+
+' Service connections
+limiter -.-> user_svc
+limiter -.-> product_svc
+limiter -.-> order_svc
+limiter -.-> payment_svc
+limiter -.-> search_svc
+limiter -.-> recommend_svc
+
+' Business service to data connections
+user_svc --> user_db
+user_svc --> cache
+product_svc --> product_db
+product_svc --> search_idx
+order_svc --> order_db
+payment_svc --> order_db
+inv_svc --> product_db
+ship_svc --> order_db
+search_svc --> search_idx
+analytics_svc --> warehouse
+
+' Cross-service communication via messaging
+order_svc --> kafka
+payment_svc --> kafka
+inv_svc --> kafka
+ship_svc --> kafka
+notify_svc --> rabbitmq
+analytics_svc --> kafka
+flink --> kafka
+
+' Notifications
+notify_svc --> sendgrid
+notify_svc --> twilio
+
+' External payment
+payment_svc --> stripe
+
+' Infrastructure integration
+user_svc -.-> istio
+product_svc -.-> istio
+order_svc -.-> istio
+recommend_svc -.-> istio
+
+' Observability
+istio --> monitoring
+istio --> logging
+istio --> tracing
+
+' Configuration & Cloud
+auth --> config
+payment_svc --> config
+s3 -.-> web
+cdn -.-> web
+
+note right of gateway
+    Entry point for all
+    external traffic
+end note
+
+note right of kafka
+    Decouples services
+    for scalability
+end note
+
+note bottom of istio
+    Service-to-service networking
+    Security & traffic management
+end note
+
+note bottom
+    ✓ Highly scalable & resilient
+    📊 Full observability
+    🔐 Security-first design
+end note

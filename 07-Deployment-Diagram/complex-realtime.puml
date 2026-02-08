@@ -1,0 +1,133 @@
+@startuml Complex_Cloud_Deployment
+skinparam backgroundColor #f5f5f5
+title Enterprise Cloud Deployment - Multi-Region Infrastructure
+
+node "AWS Region - US-East (Primary)" as us_east {
+    node "Availability Zone A" as us_az_a {
+        node "Kubernetes Cluster (EKS)" as us_k8s_a {
+            artifact "API Gateway\nPod" as us_api_a
+            artifact "Auth Service\nPod" as us_auth_a
+            artifact "Order Service\nPod x3" as us_order_a
+            artifact "Payment Service\nPod x2" as us_pay_a
+        }
+    }
+    
+    node "Availability Zone B" as us_az_b {
+        node "Kubernetes Cluster (EKS)" as us_k8s_b {
+            artifact "API Gateway\nPod" as us_api_b
+            artifact "Auth Service\nPod" as us_auth_b
+            artifact "Product Service\nPod x3" as us_prod_b
+            artifact "Search Service\nPod x2" as us_search_b
+        }
+    }
+    
+    database "PostgreSQL\nPrimary (RDS)" as us_postgres_primary
+    database "Redis Cluster\n(ElastiCache)" as us_redis
+    database "Elasticsearch\n(Managed)" as us_elastic
+    
+    artifact "Network Load Balancer" as us_nlb
+    artifact "CloudFront\nCDN" as us_cdn
+}
+
+node "AWS Region - EU-West (Secondary)" as eu_west {
+    node "Availability Zone A" as eu_az_a {
+        node "Kubernetes Cluster (EKS)" as eu_k8s_a {
+            artifact "API Gateway\nPod" as eu_api_a
+            artifact "Auth Service\nPod" as eu_auth_a
+            artifact "Order Service\nPod x2" as eu_order_a
+        }
+    }
+    
+    node "Availability Zone B" as eu_az_b {
+        node "Kubernetes Cluster (EKS)" as eu_k8s_b {
+            artifact "Product Service\nPod x2" as eu_prod_b
+            artifact "Search Service\nPod" as eu_search_b
+        }
+    }
+    
+    database "PostgreSQL\nReplica (RDS)" as eu_postgres_replica
+    database "Redis Cluster\n(ElastiCache)" as eu_redis
+}
+
+node "AWS Region - AP-Southeast (Tertiary)" as ap_se {
+    node "Kubernetes Cluster (EKS)" as ap_k8s {
+        artifact "API Gateway\nPod" as ap_api
+        artifact "Product Service\nPod x2" as ap_prod
+    }
+    
+    database "Redis Cluster\n(ElastiCache)" as ap_redis
+}
+
+node "External Services & SaaS" as external {
+    artifact "Stripe API\n(Payment)" as stripe_api
+    artifact "SendGrid\n(Email)" as sendgrid_api
+    artifact "Datadog\n(Monitoring)" as datadog
+    artifact "PagerDuty\n(Alerting)" as pagerduty
+}
+
+cloud "Internet" as internet
+
+' Regional connections
+us_nlb --> us_k8s_a
+us_nlb --> us_k8s_b
+us_k8s_a --> us_postgres_primary
+us_k8s_a --> us_redis
+us_k8s_b --> us_postgres_primary
+us_k8s_b --> us_redis
+us_k8s_a --> us_elastic
+us_k8s_b --> us_elastic
+
+eu_k8s_a --> eu_postgres_replica
+eu_k8s_a --> eu_redis
+eu_k8s_b --> eu_postgres_replica
+eu_k8s_b --> eu_redis
+
+ap_k8s --> ap_redis
+
+' Cross-region replication
+us_postgres_primary --> eu_postgres_replica : "Async Replication"
+us_redis --> eu_redis : "Global Replication"
+
+' Traffic routing
+internet --> us_cdn
+us_cdn --> us_nlb
+
+' Monitoring & Observability
+us_k8s_a -.-> datadog : "Metrics/Logs"
+us_k8s_b -.-> datadog : "Metrics/Logs"
+eu_k8s_a -.-> datadog : "Metrics/Logs"
+ap_k8s -.-> datadog : "Metrics/Logs"
+
+datadog --> pagerduty : "Alerts"
+
+' External service integrations
+us_order_a -.-> stripe_api
+us_pay_a -.-> stripe_api
+us_auth_a -.-> sendgrid_api
+
+note right of us_nlb
+    Accepts all traffic
+    Routes to pods
+end note
+
+note right of us_postgres_primary
+    Master region
+    ACID compliance
+end note
+
+note right of eu_postgres_replica
+    Read-only replica
+    < 500ms replication lag
+end note
+
+note left of external
+    Third-party integrations
+    API calls via internet
+end note
+
+note bottom
+    🌍 Multi-region deployment
+    ⚠️ Active-Active with failover
+    📊 Real-time replication
+    ✓ 99.999% uptime SLA
+end note

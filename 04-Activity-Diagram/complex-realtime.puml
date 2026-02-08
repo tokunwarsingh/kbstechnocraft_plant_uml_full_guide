@@ -1,0 +1,103 @@
+@startuml Complex_DataProcessingActivity
+skinparam backgroundColor #f5f5f5
+title Real-Time Data Processing Pipeline - Activity Diagram
+
+start
+:Data Ingestion;
+
+fork
+    :Stream from\nKafka Topic;
+    :Parse JSON\nMessages;
+    note right
+        Complex parsing
+        with validation
+    end note
+else
+    :Query from\nDatabase;
+    :Transform\nDatabase Records;
+else
+    :Read from\nFile System;
+    :Decode\nData Format;
+end fork
+
+:Merge Data\nStreams;
+
+if (Data Validation) then
+    #hotpink
+    :**FAILED**;
+    :Log Error\nEvent;
+    :Send Alert\nNotification;
+    :Archive Invalid\nData;
+    end
+else
+    #lightgreen
+    :Proceed;
+endif
+
+partition "Enrichment Layer" {
+    :Lookup Reference\nData;
+    :Append Master\nData;
+    fork
+        :Add Geolocation\nInfo;
+    else
+        :Enrich with\nWeather Data;
+    else
+        :Fetch User\nProfile Data;
+    end fork
+}
+
+:Deduplicate\nRecords;
+
+partition "Processing Engine" {
+    parallel (Process in Parallel)
+        :Real-time\nAggregation;
+        :Calculate KPIs;
+    also
+        :Anomaly\nDetection;
+        :Apply ML\nModels;
+    also
+        :Generate\nAlerts;
+        :Create\nRecommendations;
+    end parallel
+}
+
+:Prepare Output\nData;
+
+:Buffer Results\n(500ms);
+
+if (Buffer Threshold Met\nor Timeout Reached) then
+    :Write to\nData Lake;
+    :Push to\nCache (Redis);
+    :Send to\nMessage Queue;
+    fork
+        :Update\nDashboards;
+    else
+        :Trigger\nDownstream Jobs;
+    else
+        :Log Results;
+    end fork
+else
+    :Wait for More\nData;
+    :Goto Wait;
+endif
+
+:Update\nMetrics;
+
+:Archive\nProcessed Data;
+
+if (End of Day?) then
+    :Generate\nDaily Report;
+    :Send Summary\nEmail;
+    :Backup to\nCloud Storage;
+else
+    :Continue\nProcessing;
+    :Goto Data Ingestion;
+endif
+
+stop
+
+note bottom
+    ⏱️ Processing latency: < 100ms
+    📊 Throughput: 100K events/sec
+    ✓ 99.99% availability
+end note

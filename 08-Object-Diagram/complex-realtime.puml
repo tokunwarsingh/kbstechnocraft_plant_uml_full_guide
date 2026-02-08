@@ -1,0 +1,183 @@
+@startuml Complex_ObjectDiagram
+skinparam backgroundColor #f5f5f5
+title E-Commerce Live Transaction - Object Diagram (Instance View)
+
+object "customer1:Customer" as cust1 {
+    userId = "CUST-2024-001"
+    email = "alice@example.com"
+    loyaltyPoints = 5250
+    createdAt = "2023-01-15"
+}
+
+object "customer2:Customer" as cust2 {
+    userId = "CUST-2024-002"
+    email = "bob@example.com"
+    loyaltyPoints = 12500
+    createdAt = "2022-06-20"
+}
+
+object "admin1:Administrator" as admin1 {
+    userId = "ADMIN-001"
+    email = "admin@shop.com"
+    role = "InventoryManager"
+    permissions = ["edit_inventory", "process_returns"]
+}
+
+object "order1:Order" as order1 {
+    orderId = "ORD-2024-100501"
+    orderDate = "2024-02-08 14:30:00"
+    status = "InTransit"
+    totalAmount = "$299.99"
+}
+
+object "order2:Order" as order2 {
+    orderId = "ORD-2024-100502"
+    orderDate = "2024-02-08 15:45:00"
+    status = "Delivered"
+    totalAmount = "$129.50"
+}
+
+object "item1:OrderItem" as item1 {
+    itemId = "ITEM-001"
+    quantity = 2
+    unitPrice = "$89.99"
+    discount = "$10.00"
+}
+
+object "item2:OrderItem" as item2 {
+    itemId = "ITEM-002"
+    quantity = 1
+    unitPrice = "$120.00"
+    discount = "$0.00"
+}
+
+object "item3:OrderItem" as item3 {
+    itemId = "ITEM-003"
+    quantity = 1
+    unitPrice = "$89.50"
+}
+
+object "product1:Product" as prod1 {
+    productId = "PROD-2024-001"
+    name = "Pro Wireless Headphones"
+    basePrice = "$99.99"
+    sku = "WH-PRO-001"
+}
+
+object "product2:Product" as prod2 {
+    productId = "PROD-2024-002"
+    name = "USB-C Cable"
+    basePrice = "$12.99"
+    sku = "CAB-USB3-001"
+}
+
+object "product3:Product" as prod3 {
+    productId = "PROD-2024-003"
+    name = "Phone Case Premium"
+    basePrice = "$29.99"
+    sku = "CASE-PHN-001"
+}
+
+object "variation1:ProductVariation" as var1 {
+    variationId = "VAR-001"
+    attributes = "color:Black, size:Large"
+    sku = "WH-PRO-001-BLK-L"
+}
+
+object "inventory1:Inventory" as inv1 {
+    inventoryId = "INV-001"
+    quantity = 150
+    reservedQuantity = 5
+    warehouseLocation = "A-12-3"
+}
+
+object "shipment1:Shipment" as ship1 {
+    shipmentId = "SHIP-2024-001"
+    carrier = "FedEx"
+    trackingNumber = "794699625473"
+    status = "InTransit"
+}
+
+object "address1:Address" as addr1 {
+    addressId = "ADDR-001"
+    street = "42 Tech Street"
+    city = "San Francisco"
+    postalCode = "94105"
+    country = "USA"
+}
+
+object "ccards:CreditCard" as ccard1 {
+    paymentMethodId = "PM-001"
+    cardHolder = "Alice Johnson"
+    expiryDate = "02/26"
+    isDefault = true
+}
+
+object "transaction1:Transaction" as trans1 {
+    transactionId = "TXN-2024-5001"
+    amount = "$299.99"
+    status = "Completed"
+    gateway = "Stripe"
+}
+
+object "invoice1:Invoice" as inv1_obj {
+    invoiceId = "INV-2024-001"
+    generatedAt = "2024-02-08 14:31:00"
+    totalTax = "$25.00"
+    totalDiscount = "$10.00"
+}
+
+object "tracking1:TrackingInfo" as track1 {
+    trackingId = "TRK-001"
+    updates = [3 TrackingUpdate instances]
+}
+
+object "update1:TrackingUpdate" as upd1 {
+    status = "In Transit"
+    location = "Memphis, TN"
+    timestamp = "2024-02-08 18:00:00"
+}
+
+' Relationships
+cust1 --> order1 : "places"
+cust1 --> order2 : "places"
+cust2 --> order2 : "placed with customer1"
+
+order1 --> item1 : "contains"
+order1 --> item2 : "contains"
+cust2 --> item3 : "additional items"
+
+item1 --> prod1 : "is"
+item2 --> prod2 : "is"
+item3 --> prod3 : "is"
+
+prod1 --> var1 : "has variation"
+prod1 --> inv1 : "tracked by"
+
+order1 --> addr1 : "ships to"
+order1 --> ccard1 : "paid with"
+order1 --> trans1 : "via transaction"
+order1 --> ship1 : "ships via"
+order1 --> invoice1 : "generates"
+
+trans1 --> ccard1 : "processes"
+ship1 --> track1 : "provides"
+track1 --> upd1 : "latest update"
+
+admin1 -.-> inv1 : "manages"
+
+note right of order1
+    Primary order aggregate
+    Real-time processing
+end note
+
+note right of inv1
+    Current stock level
+    Must be updated atomically
+end note
+
+note bottom
+    📦 Snapshot of live system state
+    🔄 All relationships active
+    ✓ Consistency maintained
+end note

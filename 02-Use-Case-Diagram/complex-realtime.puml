@@ -1,0 +1,85 @@
+@startuml Complex_Enterprise_UseCase
+skinparam backgroundColor #f5f5f5
+title Enterprise SaaS Platform - Complex Use Case Diagram
+
+left to right direction
+
+package "Enterprise SaaS Platform" {
+    usecase UC1 as "User Authentication\n& Authorization"
+    usecase UC2 as "Project Management"
+    usecase UC3 as "Team Collaboration"
+    usecase UC4 as "Analytics & Reporting"
+    usecase UC5 as "API Access"
+    usecase UC6 as "Document Management"
+    usecase UC7 as "Real-time Notifications"
+    usecase UC8 as "Data Export"
+    usecase UC9 as "User Management"
+    usecase UC10 as "Billing & Subscriptions"
+    usecase UC11 as "Audit Logging"
+    usecase UC12 as "Integration Services"
+    usecase UC13 as "Search & Discovery"
+    usecase UC14 as "Workflow Automation"
+    usecase UC15 as "Version Control"
+}
+
+actor "End User" as user
+actor "Project Manager" as pm
+actor "Administrator" as admin
+actor "Auditor" as auditor
+actor "API Consumer" as api_client
+actor "Third-party Service" as third_party
+
+user --> UC1
+user --> UC2
+user --> UC3
+user --> UC6
+user --> UC13
+user --> UC14
+
+pm --> UC2
+pm --> UC3
+pm --> UC4
+pm --> UC8
+pm --> UC15
+
+admin --> UC1
+admin --> UC9
+admin --> UC10
+admin --> UC11
+admin --> UC12
+admin --> UC3
+
+auditor --> UC11
+auditor --> UC4
+
+api_client --> UC5
+api_client --> UC12
+api_client --> UC8
+
+third_party --> UC12
+
+UC1 .> UC7 : <<includes>>
+UC2 .> UC14 : <<includes>>
+UC2 .> UC13 : <<includes>>
+UC3 .> UC7 : <<includes>>
+UC4 .> UC13 : <<includes>>
+UC5 .> UC1 : <<includes>>
+UC10 .> UC9 : <<extends>>
+UC14 .> UC7 : <<includes>>
+UC15 .> UC8 : <<includes>>
+UC12 .> UC1 : <<includes>>
+
+note bottom of user
+    Regular users can perform
+    typical collaboration tasks
+end note
+
+note bottom of admin
+    Admins have full system control
+    and oversight capabilities
+end note
+
+note right of UC1
+    Core security feature
+    across all use cases
+end note

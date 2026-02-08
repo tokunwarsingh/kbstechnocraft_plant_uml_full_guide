@@ -1,0 +1,145 @@
+@startuml Complex_TimingDiagram
+skinparam backgroundColor #f5f5f5
+title Real-Time E-Commerce Checkout - Timing Sequence Diagram
+
+robust "Web Browser" as browser
+concise "Load Balancer" as lb
+concise "API Gateway" as gateway
+concise "Auth Service" as auth
+concise "Order Service" as orders
+concise "Payment Service" as payment
+concise "Inventory Service" as inventory
+concise "Message Queue" as queue
+concise "Email Service" as email
+
+@0
+browser is Idle
+lb is Idle
+gateway is Idle
+auth is Idle
+orders is Idle
+payment is Idle
+inventory is Idle
+queue is Idle
+email is Idle
+
+@100
+browser is Active : User clicks checkout
+browser -> lb : HTTP POST /checkout
+
+@110
+lb is Active : Route request
+lb -> gateway : Forward to API Gateway
+
+@120
+gateway is Active : Parse request
+gateway -> auth : Validate token
+
+@125
+auth is Active : JWT verification
+auth is Active : Redis cache lookup
+auth -> auth : Cache HIT
+
+@130
+auth is Idle
+auth -> gateway : ✓ Token valid
+
+@140
+gateway is Active : Decompose request
+gateway -> orders : Create order
+
+@145
+orders is Active : Generate order ID
+orders -> inventory : Check stock
+
+@150
+inventory is Active : Query database
+inventory is Active : Lock inventory
+
+@155
+inventory is Idle
+inventory -> orders : ✓ Stock available
+
+@160
+orders -> payment : Initiate payment
+orders is Active : Save to database
+
+@165
+payment is Active : Validate card
+payment is Active : Call Stripe API
+
+@170
+payment is Active : Wait for gateway
+
+@180
+payment is Idle
+payment -> orders : ✓ Payment successful
+
+@185
+orders is Idle
+orders -> queue : Publish order_created event
+
+@190
+queue is Active : Enqueue message
+queue is Idle
+orders -> gateway : Order created OK
+
+@195
+gateway is Idle
+gateway -> browser : 200 OK + Order ID
+
+@200
+browser is Idle : Display confirmation
+browser is Active : Polling status
+
+@200
+queue is Active : Consume event
+queue -> email : Send confirmation email
+
+@210
+email is Active : Generate email
+email is Active : Queue with SendGrid
+
+@220
+email is Idle
+
+@225
+browser is Active : Poll status
+browser -> lb : GET /orders/{id}
+
+@230
+lb -> gateway : Route request
+
+@235
+gateway -> orders : Fetch order
+
+@240
+orders is Active : Database query
+orders is Active : Cache check
+
+@245
+orders is Idle
+orders -> gateway : Order details
+
+@250
+gateway is Idle
+gateway -> browser : Order status: Processing
+
+@255
+browser is Idle : Update UI
+
+note right of browser
+    Total time: 155ms
+    User perceives: ~200ms
+end note
+
+note right of payment
+    Critical path item
+    External API call
+end note
+
+note bottom
+    ⏱️ P99 latency: 250ms
+    📊 Throughput: 1000 req/sec
+    ✓ All services healthy
+end note

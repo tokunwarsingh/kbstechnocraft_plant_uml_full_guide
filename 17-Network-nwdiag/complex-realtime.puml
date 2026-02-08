@@ -1,0 +1,124 @@
+@startnwdiag
+skinparam backgroundColor #f5f5f5
+
+{
+  network dmz {
+    color = "#FFcccc"
+    address = "203.0.113.0/24"
+
+    web01 [address = "203.0.113.10", description = "Web Server 1"];
+    web02 [address = "203.0.113.11", description = "Web Server 2"];
+    web03 [address = "203.0.113.12", description = "Web Server 3"];
+    lb01 [address = "203.0.113.5", description = "Load Balancer"];
+  }
+
+  network internal {
+    color = "#ccccFF"
+    address = "10.0.0.0/16"
+
+    router01 [address = "10.0.0.1", description = "Gateway Router"];
+    
+    network api_tier {
+      color = "#ccFFcc"
+      address = "10.0.1.0/24"
+
+      api01 [address = "10.0.1.10", description = "API Gateway 1"];
+      api02 [address = "10.0.1.11", description = "API Gateway 2"];
+      auth01 [address = "10.0.1.20", description = "Auth Service"];
+      auth02 [address = "10.0.1.21", description = "Auth Service(backup)"];
+    }
+
+    network microservices {
+      color = "#FFFFcc"
+      address = "10.0.2.0/24"
+
+      order01 [address = "10.0.2.10", description = "Order Service 1"];
+      order02 [address = "10.0.2.11", description = "Order Service 2"];
+      payment01 [address = "10.0.2.20", description = "Payment Service"];
+      search01 [address = "10.0.2.30", description = "Search Service"];
+      inventory01 [address = "10.0.2.40", description = "Inventory Service"];
+    }
+
+    network data_tier {
+      color = "#FFccFF"
+      address = "10.0.3.0/24"
+
+      postgres01 [address = "10.0.3.10", description = "PostgreSQL Primary"];
+      postgres02 [address = "10.0.3.11", description = "PostgreSQL Replica 1"];
+      postgres03 [address = "10.0.3.12", description = "PostgreSQL Replica 2"];
+      redis01 [address = "10.0.3.20", description = "Redis Master"];
+      redis02 [address = "10.0.3.21", description = "Redis Slave"];
+      elastic01 [address = "10.0.3.30", description = "Elasticsearch 1"];
+      elastic02 [address = "10.0.3.31", description = "Elasticsearch 2"];
+      elastic03 [address = "10.0.3.32", description = "Elasticsearch 3"];
+      kafka01 [address = "10.0.3.40", description = "Kafka Broker 1"];
+      kafka02 [address = "10.0.3.41", description = "Kafka Broker 2"];
+    }
+
+    network monitoring {
+      color = "#ccFFFF"
+      address = "10.0.4.0/24"
+
+      prometheus01 [address = "10.0.4.10", description = "Prometheus"];
+      grafana01 [address = "10.0.4.11", description = "Grafana"];
+      elasticsearch_logs [address = "10.0.4.20", description = "ELK Cluster"];
+      jaeger01 [address = "10.0.4.30", description = "Jaeger Tracing"];
+    }
+  }
+
+  network external {
+    color = "#FFFFFF"
+    address = "0.0.0.0/0"
+
+    internet [description = "Internet / CDN"];
+    stripe [description = "Stripe API"];
+    sendgrid [description = "SendGrid"];
+    aws_api [description = "AWS APIs"];
+  }
+
+  // Connections
+  lb01 -- web01;
+  lb01 -- web02;
+  lb01 -- web03;
+  web01 -- router01;
+  web02 -- router01;
+  web03 -- router01;
+
+  router01 -- api01;
+  router01 -- api02;
+  router01 -- auth01;
+  router01 -- auth02;
+
+  api01 -- order01;
+  api01 -- order02;
+  api01 -- payment01;
+  api01 -- search01;
+  api01 -- inventory01;
+
+  order01 -- postgres01;
+  order02 -- postgres01;
+  payment01 -- postgres01;
+  search01 -- elastic01;
+  inventory01 -- postgres01;
+
+  postgres01 -- postgres02;
+  postgres01 -- postgres03;
+  redis01 -- redis02;
+  elastic01 -- elastic02;
+  elastic01 -- elastic03;
+  kafka01 -- kafka02;
+
+  order01 -- kafka01;
+  payment01 -- kafka01;
+  search01 -- kafka01;
+
+  api01 -- prometheus01;
+  api02 -- prometheus01;
+  order01 -- jaeger01;
+  payment01 -- jaeger01;
+
+  internet -- lb01;
+  payment01 -- stripe;
+  order01 -- sendgrid;
+  api01 -- aws_api;
+}

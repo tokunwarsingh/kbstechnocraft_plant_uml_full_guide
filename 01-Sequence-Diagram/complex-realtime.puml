@@ -1,0 +1,90 @@
+@startuml RealTime_E-Commerce_Checkout_Flow
+skinparam backgroundColor #f5f5f5
+skinparam sequenceParticipant #ffcccc
+title E-Commerce Real-Time Checkout Flow - Microservices Architecture
+
+actor User as user
+participant "Web App" as web
+participant "API Gateway" as gateway
+participant "Auth Service" as auth
+participant "Cart Service" as cart
+participant "Payment Service" as payment
+participant "Order Service" as order
+participant "Inventory Service" as inventory
+participant "Notification Service" as notify
+participant "Analytics" as analytics
+
+user -> web: 1. Click Checkout
+activate web
+
+web -> gateway: 2. POST /checkout\n(user_id, cart_items)
+activate gateway
+
+par Parallel Processing
+    gateway -> auth: 3a. Verify User Token
+    activate auth
+    auth -> auth: Validate JWT
+    auth --> gateway: 3a. ✓ Authenticated
+    deactivate auth
+    
+    gateway -> cart: 3b. Get Cart Details
+    activate cart
+    cart -> cart: Fetch items from cache
+    cart --> gateway: 3b. Cart items\n(total: $299.99)
+    deactivate cart
+end
+
+gateway -> payment: 4. Process Payment\n(amount: $299.99, method)
+activate payment
+payment -> payment: Validate card details
+par Payment Processing
+    payment -> payment: Charge credit card
+    payment -> payment: Handle transaction
+end
+payment --> gateway: ✓ Payment Successful\n(transaction_id: TXN123)
+deactivate payment
+
+gateway -> inventory: 5. Reserve Inventory\n(item_ids, quantities)
+activate inventory
+inventory -> inventory: Lock stock
+inventory --> gateway: ✓ Stock Reserved\n(reservation_id: RES456)
+deactivate inventory
+
+gateway -> order: 6. Create Order\n(user_id, items, payment_id)
+activate order
+order -> order: Generate order ID: ORD789
+order -> order: Store in database
+order --> gateway: ✓ Order Created\n(order_id, status: pending)
+deactivate order
+
+par Async Operations
+    gateway -> notify: 7a. Send Confirmation Email
+    activate notify
+    notify -> notify: Queue email task
+    notify --> gateway: ✓ Email queued
+    deactivate notify
+    
+    gateway -> analytics: 7b. Log Event\n(checkout_completed)
+    activate analytics
+    analytics -> analytics: Record metrics
+    analytics --> gateway: ✓ Event logged
+    deactivate analytics
+end
+
+gateway -> inventory: 8. Confirm Reservation
+activate inventory
+inventory -> inventory: Remove from reserved stock
+inventory --> gateway: ✓ Inventory confirmed
+deactivate inventory
+
+gateway --> web: 9. Order Confirmation\n{order_id: ORD789, status: confirmed}
+deactivate gateway
+
+web -> user: 10. Display Confirmation\nPage with order details
+deactivate web
+
+note over user, analytics
+  🔄 Real-time updates enabled
+  ⏱️ Total processing time: ~2.3s
+  ✓ All services healthy
+end note

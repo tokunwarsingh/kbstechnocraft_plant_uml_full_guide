@@ -1,0 +1,100 @@
+@startsalt
+skinparam BackgroundColor #f5f5f5
+title E-Commerce Admin Dashboard - Complex UI Mockup
+
+{
+  {T
+    + Admin Dashboard
+    ++ Home
+    ++ Orders
+    ++ Customers
+    ++ Products
+    ++ Analytics
+    ++ Settings
+  }
+  ||
+  {
+    {SI
+      <img:https://images.unsplash.com/photo-1560264357-8d9766d71ae5?w=50&h=50&fit=crop>
+      Admin User | Logout
+    }
+    --
+    {
+      Date Range: [ -- Choose Date -- ]
+      Status Filter: [ x Pending | - Processing | - Shipped ]
+      { Search field (Orders...) | [Search] }
+    }
+    --
+    { 
+      {
+        === Key Metrics
+        ^Total Orders: **1,245** (+8.2% MoM)
+        ^Revenue: **$89,432** (+12.3% MoM)
+        ^Avg Order Value: **$71.82** (-2.1% MoM)
+        ^Conversion Rate: **3.24%** (+0.5% MoM)
+      }
+      ||
+      {
+        === Alert Status
+        [!] 3 Orders Pending Approval
+        [!] 2 Low Stock Items
+        [!] Payment Failed: 1 Order
+        {<i>View All Alerts</i>}
+      }
+    }
+    --
+    {
+      {
+        === Recent Orders
+        | OrderID | Customer | Amount | Status | Date | Action |
+        | ORD-001 | Alice J. | $299.99 | Shipped | 2024-02-08 | [Details] [Cancel] |
+        | ORD-002 | Bob Smith | $145.50 | Processing | 2024-02-08 | [Details] |
+        | ORD-003 | Carol D. | $89.99 | Pending | 2024-02-07 | [Details] [Approve] |
+        | ORD-004 | David L. | $256.00 | Delivered | 2024-02-06 | [Details] |
+      }
+    }
+    --
+    {
+      {
+        === Top Products
+        | Rank | Product | Sales | Revenue | Stock |
+        | 1 | Pro Headphones | 234 | $21,366 | 145 |
+        | 2 | Phone Case | 456 | $13,680 | 2 [!] |
+        | 3 | USB Cable | 678 | $8,814 | 890 |
+        | 4 | Screen Protector | 123 | $2,214 | 234 |
+      }
+    }
+    --
+    {
+      {
+        === Customer Breakdown
+        ^New Customers: 123 | Returning: 1,122 | VIP: 89
+      }
+      ||
+      {
+        === Channel Performance
+        ^Web: 789 orders | Mobile: 456 orders
+      }
+    }
+    --
+    {
+      {
+        === Orders by Region
+        ^North America: 678 (54%) | Europe: 356 (29%) | Asia: 211 (17%)
+      }
+      ||
+      {
+        === Payment Methods
+        ^Card: 89% | PayPal: 8% | Bank Transfer: 3%
+      }
+    }
+  }
+}
+
+note bottom
+  ✓ Real-time data dashboard
+  📊 Multiple summary cards
+  📈 Key metrics & trends
+  🎯 Action-oriented interface
+  ⚠️ Alert system for issues
+end note

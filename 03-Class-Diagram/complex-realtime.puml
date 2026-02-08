@@ -1,0 +1,280 @@
+@startuml Complex_ECommeerce_ClassDiagram
+skinparam backgroundColor #f5f5f5
+title E-Commerce Platform - Complex Class Diagram
+
+package "User Management" {
+    abstract class User {
+        -userId: UUID
+        -email: String
+        -passwordHash: String
+        -createdAt: DateTime
+        -isActive: Boolean
+        +authenticate(password: String): Boolean
+        +updateProfile(data: Map): void
+        +getPreferences(): UserPreferences
+    }
+
+    class Customer extends User {
+        -loyaltyPoints: Integer
+        -shippingAddresses: Address[]
+        -paymentMethods: PaymentMethod[]
+        -purchaseHistory: Order[]
+        +addAddress(address: Address): void
+        +addPaymentMethod(method: PaymentMethod): void
+        +calculateLoyaltyReward(): Float
+    }
+
+    class Administrator extends User {
+        -permissions: Permission[]
+        -role: AdminRole
+        +approveOrders(): void
+        +manageInventory(): void
+        +generateReports(): Report[]
+    }
+}
+
+package "Product Catalog" {
+    class Product {
+        -productId: UUID
+        -name: String
+        -description: String
+        -basePrice: BigDecimal
+        -sku: String
+        -createdAt: DateTime
+        -updatedAt: DateTime
+        +getPrice(quantity: Integer): BigDecimal
+        +isAvailable(): Boolean
+        +updateStock(quantity: Integer): void
+    }
+
+    class Category {
+        -categoryId: UUID
+        -name: String
+        -description: String
+        -parentCategory: Category
+        +getSubcategories(): Category[]
+        +getProducts(): Product[]
+    }
+
+    class Inventory {
+        -inventoryId: UUID
+        -product: Product
+        -quantity: Integer
+        -reservedQuantity: Integer
+        -warehouseLocation: String
+        +reserveStock(quantity: Integer): ReservationId
+        +releaseReservation(reservationId: UUID): void
+        +getAvailableQuantity(): Integer
+    }
+
+    class ProductVariation {
+        -variationId: UUID
+        -product: Product
+        -attributes: Map
+        -sku: String
+        -priceModifier: BigDecimal
+        +getEffectivePrice(): BigDecimal
+    }
+}
+
+package "Order Management" {
+    class Order {
+        -orderId: UUID
+        -customer: Customer
+        -orderDate: DateTime
+        -status: OrderStatus
+        -items: OrderItem[]
+        -shippingAddress: Address
+        -paymentInfo: PaymentInfo
+        -totalAmount: BigDecimal
+        +addItem(item: OrderItem): void
+        +calculateTotal(): BigDecimal
+        +updateStatus(newStatus: OrderStatus): void
+        +generateInvoice(): Invoice
+    }
+
+    class OrderItem {
+        -itemId: UUID
+        -order: Order
+        -product: Product
+        -variation: ProductVariation
+        -quantity: Integer
+        -unitPrice: BigDecimal
+        -discount: BigDecimal
+        +getSubtotal(): BigDecimal
+        +applyDiscount(discount: Discount): void
+    }
+
+    enum OrderStatus {
+        PENDING
+        CONFIRMED
+        PROCESSING
+        SHIPPED
+        DELIVERED
+        CANCELLED
+        REFUNDED
+    }
+
+    class Invoice {
+        -invoiceId: UUID
+        -order: Order
+        -generatedAt: DateTime
+        -totalTax: BigDecimal
+        -totalDiscount: BigDecimal
+        +generatePDF(): byte[]
+        +sendByEmail(recipient: String): void
+    }
+}
+
+package "Payment Processing" {
+    abstract class PaymentMethod {
+        -paymentMethodId: UUID
+        -isDefault: Boolean
+        -createdAt: DateTime
+        +validate(): Boolean
+    }
+
+    class CreditCard extends PaymentMethod {
+        -cardNumber: String
+        -cardHolder: String
+        -expiryDate: String
+        -cvv: String
+        +maskCardNumber(): String
+    }
+
+    class PayPalAccount extends PaymentMethod {
+        -email: String
+        -paypalId: String
+    }
+
+    class BankTransfer extends PaymentMethod {
+        -bankName: String
+        -accountNumber: String
+        -routingNumber: String
+    }
+
+    class Transaction {
+        -transactionId: UUID
+        -order: Order
+        -paymentMethod: PaymentMethod
+        -amount: BigDecimal
+        -status: TransactionStatus
+        -gateway: PaymentGateway
+        -createdAt: DateTime
+        -completedAt: DateTime
+        +process(): TransactionStatus
+        +refund(amount: BigDecimal): Transaction
+    }
+
+    enum TransactionStatus {
+        PENDING
+        PROCESSING
+        COMPLETED
+        FAILED
+        REFUNDED
+    }
+}
+
+package "Shipping & Delivery" {
+    class Address {
+        -addressId: UUID
+        -street: String
+        -city: String
+        -state: String
+        -postalCode: String
+        -country: String
+        +validate(): Boolean
+        +formatAddress(): String
+    }
+
+    class Shipment {
+        -shipmentId: UUID
+        -order: Order
+        -carrier: ShippingCarrier
+        -trackingNumber: String
+        -shippingAddress: Address
+        -estimatedDelivery: DateTime
+        -actualDelivery: DateTime
+        -status: ShipmentStatus
+        +track(): TrackingInfo
+        +updateStatus(status: ShipmentStatus): void
+    }
+
+    enum ShipmentStatus {
+        PREPARING
+        PICKED
+        PACKED
+        SHIPPED
+        IN_TRANSIT
+        OUT_FOR_DELIVERY
+        DELIVERED
+        FAILED
+    }
+
+    enum ShippingCarrier {
+        FEDEX
+        UPS
+        USPS
+        DHL
+    }
+
+    class TrackingInfo {
+        -trackingId: UUID
+        -shipment: Shipment
+        -updates: TrackingUpdate[]
+        +getLatestUpdate(): TrackingUpdate
+        +getHistory(): TrackingUpdate[]
+    }
+
+    class TrackingUpdate {
+        -updateId: UUID
+        -timestamp: DateTime
+        -status: String
+        -location: String
+        -message: String
+    }
+}
+
+package "Reviews & Ratings" {
+    class Review {
+        -reviewId: UUID
+        -product: Product
+        -customer: Customer
+        -rating: Integer
+        -title: String
+        -content: String
+        -createdAt: DateTime
+        -helpful: Integer
+        -unhelpful: Integer
+        +markAsHelpful(): void
+        +reportInappropriate(): void
+    }
+}
+
+Customer --> Order : "places" 0..*
+Order --> OrderItem : "contains" 1..*
+OrderItem --> Product : "includes"
+OrderItem --> ProductVariation : "uses" 0..1
+Product --> Category : "belongs to"
+Product --> Inventory : "tracked by"
+Order --> Address : "ships to"
+Order --> PaymentInfo : "paid via"
+Order --> Invoice : "generates"
+Transaction --> PaymentMethod : "uses"
+Transaction --> Order : "processes"
+Shipment --> Order : "ships"
+Shipment --> Address : "delivers to"
+Shipment --> TrackingInfo : "provides"
+TrackingInfo --> TrackingUpdate : "contains" 1..*
+Review --> Product : "reviews"
+Review --> Customer : "by"
+
+note right of Order
+    Central aggregate in the system
+    Coordinates all order-related operations
+end note
+
+note bottom of PaymentMethod
+    Abstract class for multiple payment types
+    Enables polymorphic payment handling
+end note
