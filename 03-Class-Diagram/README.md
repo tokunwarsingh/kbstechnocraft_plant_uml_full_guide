@@ -1,13 +1,7 @@
 # 03-Class-Diagram
 
-This folder corresponds to the **03 Class Diagram** chapter from the PlantUML guide.
+This chapter follows the PlantUML Guide.
 
-It contains:
-- diagram.puml: Example PlantUML syntax
-- README.md: Explanation of the diagram type
+## basic-class.puml
+Basic class diagram with attributes.
 
-Used for data modeling and software structure.
-|Relation |Code |Meaning|
-|Extension |<--| |
-|Composition|*--|Part of (Strong)|
-|Aggregationo|-- |Part of (Weak)|

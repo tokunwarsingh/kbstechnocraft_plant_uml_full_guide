@@ -1,7 +1,7 @@
 # 02-Use-Case-Diagram
 
-This folder corresponds to the **02 Use Case Diagram** chapter from the PlantUML guide.
+This chapter follows the PlantUML Guide.
 
-It contains:
-- diagram.puml: Example PlantUML syntax
-- README.md: Explanation of the diagram type
+## basic-usecase.puml
+Simple use-case diagram demonstrating user interaction.
+

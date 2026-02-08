@@ -1,7 +1,7 @@
 # 09-Timing-Diagram
 
-This folder corresponds to the **09 Timing Diagram** chapter from the PlantUML guide.
+This chapter follows the PlantUML Guide.
 
-It contains:
-- diagram.puml: Example PlantUML syntax
-- README.md: Explanation of the diagram type
+## basic-timing.puml
+Timing constraints example.
+

@@ -1,0 +1,3 @@
+@startuml
+json "Data" { "id": 1 }
+@enduml

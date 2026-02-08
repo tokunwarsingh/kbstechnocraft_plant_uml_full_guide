@@ -1,12 +1,7 @@
 # 01-Sequence-Diagram
 
-This folder corresponds to the **01 Sequence Diagram** chapter from the PlantUML guide.
+This chapter follows the PlantUML Guide.
 
-It contains:
-- diagram.puml: Example PlantUML syntax
-- README.md: Explanation of the diagram type
+## basic-sequence.puml
+Basic sequence diagram showing message flow between actors.
 
-### Syntax Key:
-- `->` : Solid arrow (Sync call)
-- `-->` : Dashed arrow (Response)
-- `autonumber` : Automatically adds step numbers

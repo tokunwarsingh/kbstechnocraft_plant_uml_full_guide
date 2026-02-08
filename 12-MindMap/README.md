@@ -1,7 +1,7 @@
 # 12-MindMap
 
-This folder corresponds to the **12 MindMap** chapter from the PlantUML guide.
+This chapter follows the PlantUML Guide.
 
-It contains:
-- diagram.puml: Example PlantUML syntax
-- README.md: Explanation of the diagram type
+## basic-mindmap.puml
+MindMap for idea breakdown.
+

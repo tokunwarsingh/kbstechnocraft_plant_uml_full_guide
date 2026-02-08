@@ -1,7 +1,7 @@
 # 13-Gantt
 
-This folder corresponds to the **13 Gantt** chapter from the PlantUML guide.
+This chapter follows the PlantUML Guide.
 
-It contains:
-- diagram.puml: Example PlantUML syntax
-- README.md: Explanation of the diagram type
+## basic-gantt.puml
+Project timeline using Gantt.
+

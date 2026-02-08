@@ -1,0 +1,4 @@
+@startuml
+gantt
+[Task] lasts 5 days
+@enduml
