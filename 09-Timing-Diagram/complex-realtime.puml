@@ -92,7 +92,7 @@ gateway -> browser : 200 OK + Order ID
 browser is Idle : Display confirmation
 browser is Active : Polling status
 
-@200
+@205
 queue is Active : Consume event
 queue -> email : Send confirmation email
 

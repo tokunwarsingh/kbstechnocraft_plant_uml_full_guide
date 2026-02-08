@@ -22,16 +22,13 @@ end fork
 
 :Merge Data\nStreams;
 
-if (Data Validation) then
-    #hotpink
-    :**FAILED**;
+if (Data Validation\nPassed?) then
+    :Proceed;
+else
     :Log Error\nEvent;
     :Send Alert\nNotification;
     :Archive Invalid\nData;
-    end
-else
-    #lightgreen
-    :Proceed;
+    stop
 endif
 
 partition "Enrichment Layer" {
@@ -71,14 +68,13 @@ if (Buffer Threshold Met\nor Timeout Reached) then
     :Send to\nMessage Queue;
     fork
         :Update\nDashboards;
-    else
+    also
         :Trigger\nDownstream Jobs;
-    else
+    also
         :Log Results;
     end fork
 else
     :Wait for More\nData;
-    :Goto Wait;
 endif
 
 :Update\nMetrics;
@@ -91,7 +87,6 @@ if (End of Day?) then
     :Backup to\nCloud Storage;
 else
     :Continue\nProcessing;
-    :Goto Data Ingestion;
 endif
 
 stop
