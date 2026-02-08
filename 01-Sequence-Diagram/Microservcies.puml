@@ -1,0 +1,72 @@
+@startuml
+skinparam style strictuml
+skinparam MaxMessageSize 200
+skinparam SequenceMessageAlignment center
+
+' Define Participants
+actor "Customer" as User
+participant "API Gateway" as Gateway #LightBlue
+participant "Identity Service" as Auth #Ivory
+participant "Order Service" as Order #LightSkyBlue
+participant "Payment Service" as Payment #LightCoral
+participant "Inventory Service" as Stock #LightGreen
+queue "Event Bus (Kafka)" as Bus #LightGray
+participant "Notification Service" as Notify #MediumPurple
+
+== Authentication Phase ==
+
+User -> Gateway : POST /orders (Token)
+Gateway -> Auth : Validate JWT
+activate Auth
+Auth --> Gateway : 200 OK (User Context)
+deactivate Auth
+
+== Orchestration Phase ==
+
+Gateway -> Order : Create Order Request
+activate Order
+
+Order -> Stock : Check Availability (Internal gRPC)
+activate Stock
+Stock --> Order : In Stock
+deactivate Stock
+
+Order -> Order : Persist Pending Order (DB)
+
+' Payment Logic with failure handling
+alt Payment Process
+    Order -> Payment : Authorize Payment
+    activate Payment
+    Payment --> Order : Payment Successful
+    deactivate Payment
+else Payment Failed
+    Payment --> Order : 402 Payment Required
+    Order -> Order : Mark Order Cancelled
+    Order --> Gateway : Error: Payment Failed
+end
+
+== Asynchronous Decoupling ==
+
+Order -> Bus : Publish Event: "OrderCreated"
+note right: Includes Order ID, User ID, and Total
+
+Order --> Gateway : 202 Accepted (Order ID)
+deactivate Order
+
+Gateway --> User : Order Processing Started
+
+' == Downstream Event Consumption ==
+
+' Bus -> Stock : Consume "OrderCreated"
+' activate Stock
+' Stock -> Stock : Reserve Items
+' Stock --> Bus : Ack
+' deactivate Stock
+
+' Bus -> Notify : Consume "OrderCreated"
+' activate Notify
+' Notify -> User : Send Email Confirmation
+' Notify --> Bus : Ack
+' deactivate Notify
+
+@enduml

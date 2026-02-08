@@ -1,0 +1,61 @@
+@startuml
+title Microservices Architecture - Aligned
+
+' --- Styling ---
+skinparam componentStyle rectangle
+skinparam nodesep 50
+skinparam ranksep 50
+skinparam packageStyle frame
+
+' --- Components ---
+
+package "Client Layer" {
+    [Web Browser] as Web
+    [Mobile App] as Mobile
+}
+
+package "Edge Layer" {
+    component "API Gateway" as Gateway #SkyBlue
+}
+
+' Grouping services together horizontally
+package "Service Layer" {
+    together {
+        component "Order Service" as Order #PaleGreen
+        component "Inventory Service" as Stock #PaleGreen
+        component "Payment Service" as Payment #PaleGreen
+    }
+}
+
+' Grouping databases together horizontally
+package "Data Layer" {
+    together {
+        database "Order DB" as ODB #LightGray
+        database "Stock DB" as SDB #LightGray
+        database "Payment DB" as PDB #LightGray
+    }
+}
+
+queue "Kafka Message Bus" as Bus #Gold
+
+' --- Aligned Relationships ---
+
+' Clients to Gateway
+Web -down-> Gateway
+Mobile -down-> Gateway
+
+' Gateway to Services (Force vertical alignment)
+Gateway -down-> Order
+Gateway -down-> Stock
+
+' Services to their respective DBs (Directly underneath)
+Order -down-> ODB
+Stock -down-> SDB
+Payment -down-> PDB
+
+' Event-Driven flow (Side-to-Side/Bottom)
+Order -[#blue]right-> Bus : [OrderCreated]
+Bus -[#red]up-> Stock : [UpdateStock]
+Bus -[#green]up-> Payment : [ProcessPay]
+
+@enduml
